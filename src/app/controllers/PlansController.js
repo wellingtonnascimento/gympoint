@@ -87,6 +87,18 @@ class PlansController {
       price,
     });
   }
+
+  async delete(req, res) {
+    const plan = await Plans.findByPk(req.params.id);
+
+    if (!plan) {
+      return res.status(400).json({ error: 'Plan not found.' });
+    }
+
+    await plan.destroy();
+
+    return res.status(204).send();
+  }
 }
 
 export default new PlansController();

@@ -119,6 +119,14 @@ class StudentsController {
 
     return res.json(students);
   }
+
+  async show(req, res) {
+    const { id } = req.params;
+
+    const student = await Students.findByPk(id);
+
+    return res.json(student);
+  }
 }
 
 export default new StudentsController();

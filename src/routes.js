@@ -11,11 +11,17 @@ const routes = new Router();
 routes.post('/users', UserController.store);
 routes.post('/sessions', SessionController.store);
 
+/**
+ * Authentication middleware, all routes that
+ * need authenticated user comes after this
+ */
+
 routes.use(authMiddleware);
 
 routes.post('/students', StudentsController.store);
 routes.put('/students/:id', StudentsController.update);
 
 routes.post('/plans', PlansController.store);
+routes.put('/plans/:id', PlansController.update);
 
 export default routes;

@@ -28,7 +28,7 @@ routes.delete('/students/:id', StudentsController.delete);
 
 routes.post('/plans', PlansController.store);
 routes.get('/plans', PlansController.index);
-
+routes.get('/plans/:id', PlansController.show);
 routes.put('/plans/:id', PlansController.update);
 
 export default routes;

@@ -33,6 +33,12 @@ class PlansController {
     return res.json({ title, duration, price });
   }
 
+  async index(req, res) {
+    const plans = await Plans.findAll();
+
+    return res.json(plans);
+  }
+
   async update(req, res) {
     const schema = Yup.object().shape({
       title: Yup.string().required(),

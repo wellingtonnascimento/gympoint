@@ -1,4 +1,6 @@
 import * as Yup from 'yup';
+import { Op } from 'sequelize';
+
 import Students from '../models/Students';
 
 class StudentsController {
@@ -78,6 +80,44 @@ class StudentsController {
       peso,
       altura,
     });
+  }
+
+  async index(req, res) {
+    const { page, filter } = req.query;
+
+    if (filter || page) {
+      if (!page) {
+        const students = await Students.findAll({
+          where: {
+            name: {
+              [Op.iLike]: `%${filter}%`,
+            },
+          },
+          order: ['name'],
+        });
+
+        return res.json(students);
+      }
+
+      const { count, rows: students } = await Students.findAndCountAll({
+        where: {
+          name: {
+            [Op.iLike]: `%${filter}%`,
+          },
+        },
+        order: ['name'],
+        limit: 10,
+        offset: (page - 1) * 10,
+      });
+
+      return res.json({ students, count });
+    }
+
+    const students = await Students.findAll({
+      order: ['name'],
+    });
+
+    return res.json(students);
   }
 }
 

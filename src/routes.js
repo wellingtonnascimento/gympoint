@@ -21,7 +21,7 @@ routes.use(authMiddleware);
 routes.put('/users', UserController.update);
 
 routes.post('/students', StudentsController.store);
-
+routes.get('/students', StudentsController.index);
 routes.put('/students/:id', StudentsController.update);
 
 routes.post('/plans', PlansController.store);

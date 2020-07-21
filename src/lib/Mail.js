@@ -20,7 +20,7 @@ class Mail {
   }
 
   configureTemplates() {
-    const viewPath = resolve(__dirname, '..', 'app', 'views', 'email');
+    const viewPath = resolve(__dirname, '..', 'app', 'views', 'emails');
 
     this.transport.use(
       'compile',

@@ -59,6 +59,8 @@ class RegistrationController {
       'yyyy-MM-dd'
     );
 
+    const totalPrice = price * duration;
+
     const registration = await Registration.create({
       student_id,
       plan_id,
@@ -72,7 +74,7 @@ class RegistrationController {
       planExists,
       start_date,
       end_date,
-      price,
+      totalPrice,
     });
 
     return res.json(registration);

@@ -3,12 +3,19 @@ import pt from 'date-fns/locale/pt';
 import Mail from '../../lib/Mail';
 
 class ConfirmationMail {
+  // Returning a unique key
   get key() {
     return 'ConfirmationMail';
   }
 
   async handle({ data }) {
-    const { studentExists, planExists, start_date, end_date, price } = data;
+    const {
+      studentExists,
+      planExists,
+      start_date,
+      end_date,
+      totalPrice,
+    } = data;
 
     await Mail.sendMail({
       to: `${studentExists.name} <${studentExists.email}>`,
@@ -17,7 +24,7 @@ class ConfirmationMail {
       context: {
         student: studentExists.name,
         plan_title: planExists.title,
-        price: price.price,
+        totalPrice,
         plan_duration: planExists.duration,
         start_date: format(parseISO(start_date), "dd'/'MM'/'yy", {
           locale: pt,

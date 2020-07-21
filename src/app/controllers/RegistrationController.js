@@ -4,6 +4,9 @@ import Registration from '../models/Registration';
 import Plan from '../models/Plans';
 import Student from '../models/Students';
 
+import ConfirmationMail from '../jobs/ConfirmationMail';
+import Queue from '../../lib/Queue';
+
 class RegistrationController {
   async store(req, res) {
     const schema = Yup.object().shape({
@@ -64,8 +67,28 @@ class RegistrationController {
       end_date,
       price,
     });
+    const registrationInfo = await Registration.findByPk(registration.id, {
+      include: [
+        {
+          model: Student,
+          as: 'student',
+          attributes: ['id', 'name', 'email'],
+        },
+        {
+          model: Plan,
+          as: 'plan',
+          attributes: ['title'],
+        },
+      ],
+    });
 
-    return res.json(registration);
+    if (process.env.NODE_ENV !== 'test') {
+      await Queue.add(ConfirmationMail.key, {
+        registrationInfo,
+      });
+    }
+
+    return res.json(registrationInfo);
   }
 }
 

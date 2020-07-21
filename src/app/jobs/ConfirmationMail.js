@@ -8,31 +8,23 @@ class ConfirmationMail {
   }
 
   async handle({ data }) {
-    const { registrationInfo } = data;
+    const { studentExists, planExists, start_date, end_date, price } = data;
 
     await Mail.sendMail({
-      to: `${registrationInfo.student.name} <${registrationInfo.student.email}>`,
+      to: `${studentExists.name} <${studentExists.email}>`,
       subject: 'Matricula realizada com sucesso',
       template: 'confirmation',
       context: {
-        student: registrationInfo.student.name,
-        start_date: format(
-          parseISO(registrationInfo.start_date),
-          "dd 'de' MMMM 'de' yyyy",
-          {
-            locale: pt,
-          }
-        ),
-        id: registrationInfo.student.id,
-        plan: registrationInfo.plan.title,
-        price: registrationInfo.price,
-        duration: format(
-          parseISO(registrationInfo.end_date),
-          "'Até dia' dd 'de' MMMM 'de' yyyy",
-          {
-            locale: pt,
-          }
-        ),
+        student: studentExists.name,
+        plan_title: planExists.title,
+        price: price.price,
+        plan_duration: planExists.duration,
+        start_date: format(parseISO(start_date), "dd'/'MM'/'yy", {
+          locale: pt,
+        }),
+        end_date: format(parseISO(end_date), "dd'/'MM'/'yy", {
+          locale: pt,
+        }),
       },
     });
   }

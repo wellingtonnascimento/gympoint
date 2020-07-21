@@ -7,7 +7,7 @@ class Registration extends Model {
       {
         start_date: Sequelize.DATE,
         end_date: Sequelize.DATE,
-        price: Sequelize.DOUBLE,
+        price: Sequelize.FLOAT,
         active: {
           type: Sequelize.VIRTUAL(Sequelize.BOOLEAN, [
             'start_date',
@@ -30,11 +30,11 @@ class Registration extends Model {
   }
 
   static associate(models) {
-    this.belongsTo(models.Students, {
+    this.belongsTo(models.Student, {
       foreignKey: 'student_id',
-      as: 'students',
+      as: 'student',
     });
-    this.belongsTo(models.Plans, { foreignKey: 'plan_id', as: 'plans' });
+    this.belongsTo(models.Plan, { foreignKey: 'plan_id', as: 'plan' });
   }
 }
 

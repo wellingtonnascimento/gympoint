@@ -33,7 +33,8 @@ routes.get('/plans/:id', PlanController.show);
 routes.put('/plans/:id', PlanController.update);
 routes.delete('/plans/:id', PlanController.delete);
 
-routes.post('/registration', RegistrationController.store);
-routes.put('/registration/:studentId', RegistrationController.update);
+routes.post('/registrations', RegistrationController.store);
+routes.put('/registrations/:studentId', RegistrationController.update);
+routes.delete('/registrations/:studentId', RegistrationController.delete);
 
 export default routes;

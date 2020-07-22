@@ -21,6 +21,7 @@ class RegistrationController {
     }
 
     const { student_id, plan_id, start_date } = req.body;
+    const parsedStartDate = parseISO(start_date);
 
     if (!plan_id || !student_id) {
       return res
@@ -58,6 +59,10 @@ class RegistrationController {
       addDays(parseISO(start_date), duration * 30),
       'yyyy-MM-dd'
     );
+
+    if (start_date && isBefore(endOfDay(parsedStartDate), new Date())) {
+      return res.status(400).json({ error: 'Past dates are not permitted' });
+    }
 
     const totalPrice = price * duration;
 
@@ -141,6 +146,24 @@ class RegistrationController {
       active,
       price: price * duration,
     });
+  }
+
+  async delete(req, res) {
+    const { studentId } = req.params;
+
+    const registration = await Registration.findOne({
+      where: {
+        student_id: studentId,
+      },
+    });
+
+    if (!registration) {
+      return res.status(400).json({ error: 'Student membership not found' });
+    }
+
+    await registration.destroy();
+
+    return res.status(204).send();
   }
 }
 

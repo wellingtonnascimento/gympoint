@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { parseISO, addDays, format } from 'date-fns';
+import { parseISO, addDays, format, isBefore, endOfDay } from 'date-fns';
 // import pt from 'date-fns/locale/pt';
 import Registration from '../models/Registration';
 import Plan from '../models/Plan';
@@ -78,6 +78,69 @@ class RegistrationController {
     });
 
     return res.json(registration);
+  }
+
+  async update(req, res) {
+    const schema = Yup.object().shape({
+      plan_id: Yup.number(),
+      start_date: Yup.date(),
+    });
+
+    const { studentId } = req.params;
+
+    if (!(await schema.isValid(req.body))) {
+      return res.status(400).json({ error: 'validation fails' });
+    }
+
+    const { plan_id, start_date } = req.body;
+    const parsedStartDate = parseISO(start_date);
+
+    /**
+     * Search for the student registration
+     */
+
+    const registrationExists = await Registration.findOne({
+      where: {
+        student_id: studentId,
+      },
+    });
+
+    if (!registrationExists) {
+      return res.status(404).json({ error: 'Registration not found.' });
+    }
+
+    if (start_date && isBefore(endOfDay(parsedStartDate), new Date())) {
+      return res.status(400).json({ error: 'Past dates are not permitted' });
+    }
+
+    const planExists = await Plan.findOne({ where: { id: plan_id } });
+
+    if (!planExists) {
+      return res.status(400).json({ error: 'Plan not found.' });
+    }
+
+    const { duration, price } = planExists;
+
+    const end_date = format(
+      addDays(parseISO(start_date), duration * 30),
+      'yyyy-MM-dd'
+    );
+
+    const { active } = await registrationExists.update({
+      student_id: studentId,
+      plan_id,
+      start_date,
+      end_date,
+      price: price * duration,
+    });
+
+    return res.json({
+      plan_id,
+      start_date,
+      end_date,
+      active,
+      price: price * duration,
+    });
   }
 }
 

@@ -112,6 +112,12 @@ class RegistrationController {
       return res.status(404).json({ error: 'Registration not found.' });
     }
 
+    if (registrationExists.active) {
+      return res
+        .status(400)
+        .json({ error: 'Only inactive membership can be updated' });
+    }
+
     if (start_date && isBefore(endOfDay(parsedStartDate), new Date())) {
       return res.status(400).json({ error: 'Past dates are not permitted' });
     }
@@ -122,28 +128,22 @@ class RegistrationController {
       return res.status(400).json({ error: 'Plan not found.' });
     }
 
-    const { duration, price } = planExists;
+    const price = planExists.price * planExists.duration;
 
     const end_date = format(
-      addDays(parseISO(start_date), duration * 30),
+      addDays(parseISO(start_date), planExists.duration * 30),
       'yyyy-MM-dd'
     );
 
-    const { active } = await registrationExists.update({
+    const updatedRegistration = await registrationExists.update({
       student_id: studentId,
       plan_id,
-      start_date,
+      start_date: parsedStartDate,
       end_date,
-      price: price * duration,
+      price,
     });
 
-    return res.json({
-      plan_id,
-      start_date,
-      end_date,
-      active,
-      price: price * duration,
-    });
+    return res.json(updatedRegistration);
   }
 
   async delete(req, res) {

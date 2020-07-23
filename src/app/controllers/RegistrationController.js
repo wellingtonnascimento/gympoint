@@ -53,25 +53,23 @@ class RegistrationController {
       return res.status(400).json({ error: 'Student not found.' });
     }
 
-    const { duration, price } = planExists;
-
-    const end_date = format(
-      addDays(parseISO(start_date), duration * 30),
-      'yyyy-MM-dd'
-    );
-
-    if (start_date && isBefore(endOfDay(parsedStartDate), new Date())) {
+    if (isBefore(endOfDay(parsedStartDate), new Date())) {
       return res.status(400).json({ error: 'Past dates are not permitted' });
     }
 
-    const totalPrice = price * duration;
+    const price = planExists.price * planExists.duration;
+
+    const end_date = format(
+      addDays(parseISO(start_date), planExists.duration * 30),
+      'yyyy-MM-dd'
+    );
 
     const registration = await Registration.create({
       student_id,
       plan_id,
       start_date,
       end_date,
-      price: price * duration,
+      price,
     });
 
     await Queue.add(ConfirmationMail.key, {
@@ -79,7 +77,7 @@ class RegistrationController {
       planExists,
       start_date,
       end_date,
-      totalPrice,
+      price,
     });
 
     return res.json(registration);

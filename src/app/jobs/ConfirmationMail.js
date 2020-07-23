@@ -9,13 +9,7 @@ class ConfirmationMail {
   }
 
   async handle({ data }) {
-    const {
-      studentExists,
-      planExists,
-      start_date,
-      end_date,
-      totalPrice,
-    } = data;
+    const { studentExists, planExists, start_date, end_date, price } = data;
 
     await Mail.sendMail({
       to: `${studentExists.name} <${studentExists.email}>`,
@@ -25,7 +19,7 @@ class ConfirmationMail {
         id: studentExists.id,
         student: studentExists.name,
         plan_title: planExists.title,
-        totalPrice,
+        totalPrice: price,
         plan_duration: planExists.duration,
         start_date: format(parseISO(start_date), "dd'/'MM'/'yy", {
           locale: pt,

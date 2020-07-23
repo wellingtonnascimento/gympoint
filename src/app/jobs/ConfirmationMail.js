@@ -22,6 +22,7 @@ class ConfirmationMail {
       subject: 'Matricula realizada com sucesso',
       template: 'confirmation',
       context: {
+        id: studentExists.id,
         student: studentExists.name,
         plan_title: planExists.title,
         totalPrice,

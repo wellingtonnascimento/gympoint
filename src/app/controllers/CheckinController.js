@@ -3,6 +3,7 @@ import { Op } from 'sequelize';
 import Checkin from '../models/Checkin';
 import Registration from '../models/Registration';
 import Student from '../models/Student';
+import Plan from '../models/Plan';
 
 class CheckinController {
   async store(req, res) {
@@ -72,6 +73,51 @@ class CheckinController {
       name,
       email,
       checkin,
+    });
+  }
+
+  async index(req, res) {
+    const { page = 1 } = req.query;
+    const { id } = req.params;
+    const checkStudentExists = await Student.findByPk(id);
+
+    if (!checkStudentExists) {
+      return res.status(401).json({ error: 'Student not found' });
+    }
+
+    const checkStudentHasRegistration = await Registration.findOne({
+      where: {
+        student_id: id,
+      },
+      include: [
+        {
+          model: Plan,
+          as: 'plan',
+          attribute: ['title'],
+        },
+      ],
+    });
+
+    if (!checkStudentHasRegistration) {
+      return res
+        .status(401)
+        .json({ error: 'Students need a registration to check-in' });
+    }
+
+    const { count, row: checkins } = await Checkin.findAndCountAll({
+      where: {
+        student_id: id,
+      },
+      order: [['createdAt', 'DESC']],
+      limit: 10,
+      offset: (page - 1) * 10,
+    });
+
+    return res.json({
+      checkins,
+      student: checkStudentExists,
+      registration: checkStudentHasRegistration,
+      count,
     });
   }
 }

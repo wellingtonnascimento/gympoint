@@ -14,6 +14,7 @@ routes.post('/users', UserController.store);
 routes.post('/sessions', SessionController.store);
 
 routes.post('/students/:id/checkins', CheckinController.store);
+routes.get('/students/:id/checkins', CheckinController.index);
 
 /**
  * Authentication middleware, all routes that

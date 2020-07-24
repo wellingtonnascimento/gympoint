@@ -33,6 +33,31 @@ class RegistrationController {
     return res.json(registrations);
   }
 
+  async show(req, res) {
+    const { studentId } = req.params;
+
+    const registration = await Registration.findOne({
+      where: {
+        student_id: studentId,
+      },
+
+      include: [
+        {
+          model: Student,
+          as: 'student',
+          atributes: ['name'],
+        },
+        {
+          model: Plan,
+          as: 'plan',
+          atributes: ['title', 'description'],
+        },
+      ],
+    });
+
+    return res.json(registration);
+  }
+
   async store(req, res) {
     const schema = Yup.object().shape({
       student_id: Yup.number().required(),

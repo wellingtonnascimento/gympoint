@@ -12,18 +12,16 @@ module.exports = {
         references: { model: 'students', key: 'id' },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
+        allowNull: true,
       },
       question: {
         type: Sequelize.STRING,
-        allowNull: false,
       },
       answer: {
         type: Sequelize.STRING,
-        allowNull: false,
       },
       answer_at: {
         type: Sequelize.DATE,
-        allowNull: false,
       },
       created_at: {
         type: Sequelize.DATE,

@@ -31,6 +31,7 @@ routes.use(authMiddleware);
 routes.put('/users', UserController.update);
 
 routes.post('/help-orders/:id/answer', HelpAnswerController.store);
+routes.get('/help-orders/pending', HelpAnswerController.index);
 
 routes.post('/students', StudentController.store);
 routes.get('/students', StudentController.index);

@@ -1,5 +1,8 @@
 import * as Yup from 'yup';
+import { Op } from 'sequelize';
+
 import HelpOrder from '../models/HelpOrder';
+import Student from '../models/Student';
 
 class HelpAnswerController {
   async store(req, res) {
@@ -31,6 +34,26 @@ class HelpAnswerController {
     await existingQuestion.save();
 
     return res.json(existingQuestion);
+  }
+
+  async index(req, res) {
+    const { page = 1 } = req.query;
+
+    const pendingQuestion = await HelpOrder.findAll({
+      where: { answer: { [Op.eq]: null } },
+      atributes: ['id', 'question', 'answer', 'answer_at'],
+      include: [
+        {
+          model: Student,
+          as: 'student',
+          atributes: ['id', 'name', 'email', 'weight', 'height'],
+        },
+      ],
+      offset: (page - 1) * 10,
+      limit: 10,
+    });
+
+    return res.json(pendingQuestion);
   }
 }
 

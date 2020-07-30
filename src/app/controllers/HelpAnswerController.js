@@ -3,6 +3,8 @@ import { Op } from 'sequelize';
 
 import HelpOrder from '../models/HelpOrder';
 import Student from '../models/Student';
+import Queue from '../../lib/Queue';
+import HelpOrderAnswerMail from '../jobs/HelpOrderAnswerMail';
 
 class HelpAnswerController {
   async store(req, res) {
@@ -21,19 +23,39 @@ class HelpAnswerController {
       return res.status(400).json({ err: 'Question id not provided' });
     }
 
-    // Verifying if the question exists
-    const existingQuestion = await HelpOrder.findByPk(id);
+    const { answer } = req.body;
 
-    if (!existingQuestion) {
+    const order = await HelpOrder.findByPk(req.params.id, {
+      include: [
+        {
+          model: Student,
+          as: 'student',
+          attributes: ['id', 'name', 'email'],
+        },
+      ],
+    });
+
+    if (!order) {
       return res.status(404).json({ err: 'Question not found' });
     }
 
-    const { answer } = req.body;
+    if (order && order.answer) {
+      return res.status(401).json({
+        error: 'This order was already answered',
+      });
+    }
 
-    await existingQuestion.update({ answer, answer_at: Date.now() });
-    await existingQuestion.save();
+    await order.update({ answer, answer_at: Date.now() });
+    await order.save();
 
-    return res.json(existingQuestion);
+    const { answer_at } = order;
+
+    await Queue.add(HelpOrderAnswerMail.key, {
+      order,
+      answer_at,
+    });
+
+    return res.json(order);
   }
 
   async index(req, res) {
